@@ -15,7 +15,7 @@ class ExpansysSpider (Spider):
 		count = 1
 		for x in urls:
 			if count == 6:
-				yield Request(x, callback=self.parse_gadgets)
+				yield Request(x, callback=self.parse_gadgetsNav)
 				count+=1
 				continue
 			elif count == 3:
@@ -51,14 +51,20 @@ class ExpansysSpider (Spider):
 		url = response.urljoin(urls[0])
 		yield Request(url, callback=self.parse_accessories)
 
-	def parse_gadgets(self, response):
+	def parse_gadgetsNav(self, response):
 		count = 1
 		urls = response.xpath('//div/div/div/div/ul[@class="onpagenav"]/li/a/@href').extract()
 		for x in urls:
 			if not count == 1:
 				url = response.urljoin(x)
-				yield Request(url, callback=self.parse_contents)
+				yield Request(url, callback=self.parse_gadgets)
 			count += 1
+
+	def parse_gadgets(self, response):
+		urls = response.xpath('//div[@class="product_list"]/ul/li/h3/a/@href').extract()
+		for x in urls:
+			url = response.urljoin(x)
+
 
 	def parse_contents(self, response):
 		item = ExpansysItem()
